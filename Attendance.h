@@ -1,4 +1,3 @@
-// Attendance.h
 #ifndef ATTENDANCE_H
 #define ATTENDANCE_H
 
@@ -12,21 +11,16 @@ class Attendance {
 private:
   int p = -1;  // Initialize p to -1
   int convertedImageT1;
-  
+
 public:
-  // Singleton pattern method
-  static Attendance& getInstance();
-  
+  // Constructor
+  Attendance();
+
   // Method to get fingerprint ID
   int getFingerprintIDez();
-  
-  // Delete copy constructor and assignment operator to enforce Singleton pattern
-  Attendance(const Attendance&) = delete;
-  Attendance& operator=(const Attendance&) = delete;
 
-private:
-  // Private constructor for Singleton pattern
-  Attendance();
+  // Copy constructor and assignment operator are default (public)
+  // No need to delete them as we are not enforcing Singleton pattern
 };
 
 #endif // ATTENDANCE_H

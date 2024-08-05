@@ -1,15 +1,6 @@
+#include "ArduinoJson.h"
 #include "HardwareSerial.h"
-// #include "HardwareSerial.h"
-// #include "WString.h"
-// #include "time.h"
-// #include "Arduino.h"
-
 #include "User.h"
-
-// Initialize static members
-User *User::users[5] = {};
-
-int User::userCount = 0;
 
 
 // Parameterized constructor
@@ -26,43 +17,7 @@ User::User(int userId,
     department(department),
     rollNumber(rollNumber) {}
 
-void User::addUser(User *user) {
-  if (User::userCount < 5) {
-    User::users[User::userCount] = user;
-    User::userCount++;
-  }
-}
-
-void User::findAndPrintUser(int id) {
-  for (int i = 0; i < User::userCount; i++) {
-    if (users[i] != nullptr && users[i]->userId == id) {
-      Serial.print(users[i]->getUsername());
-      Serial.print(" -> ");
-      Serial.print(users[i]->getAcademic());
-      Serial.print(users[i]->getDepartment());
-      Serial.print(" : ");
-      Serial.print(users[i]->getRollNumber());
-      return;
-    }
-  }
-
-  Serial.print("No match found with id.");
-  Serial.println(id);
-}
-
-void User::displayAllUsers() {
-  for (int i = 0; i < User::userCount; i++) {
-    Serial.print(User::users[i]->getUsername());
-    Serial.print(" -> ");
-    Serial.print(User::users[i]->getAcademic());
-    Serial.print(" ");
-    Serial.print(User::users[i]->getDepartment());
-    Serial.print(" : ");
-    Serial.print(User::users[i]->getRollNumber());
-    Serial.println();
-  }
-}
-
+User::User() {}
 
 // Getters and setters implementation
 int User::getUserId() const {

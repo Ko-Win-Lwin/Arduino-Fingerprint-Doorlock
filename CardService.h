@@ -8,9 +8,9 @@
 class CardService {
 public:
     static void begin(int chipSelectPin);
-    static void writeJsonToSD(const char* filename, User *user);
-    static void readJsonFromSD(const char* filename);
-    static void deleteFileFromSD(const char* filename);
+    static void writeJsonToCSV(const char* filename, User *user);
+    static User* readJsonFromCSV(const char* filename, int fingerId);
+    static void deleteFileFromCSV(const char* filename);
 
 private:
     static SdFat sd;

@@ -1,86 +1,118 @@
-#include "WString.h"
+#include "common/ArduinoFiles.h"
+#include "common/FsApiConstants.h"
+#include "HardwareSerial.h"
+#include <SdFat.h>
 #include "CardService.h"
-#include "User.h"
+#include "user.h"
 
 SdFat CardService::sd;
 
 void CardService::begin(int chipSelectPin) {
-  if (!sd.begin(chipSelectPin, SD_SCK_MHZ(50))) {
-    Serial.println("SD card initialization failed!");
+  if (!sd.begin(chipSelectPin)) {
+    Serial.println("sd card initialization failed!");
   } else {
-    Serial.println("SD card initialized.");
+    Serial.println("sd card initialized.");
   }
 }
 
-void CardService::writeJsonToSD(const char* filename, User* user) {
+
+// write to csv
+void CardService::writeJsonToCSV(const char* filename, User* user) {
   File file = sd.open(filename, FILE_WRITE);
-  if (file) {
-    // Create a dynamic JSON document
-    DynamicJsonDocument user_record(1024);  // Adjust size as needed
-    user_record["id"] = user->getUserId();
-    user_record["name"] = user->getUsername();
-    user_record["password"] = user->getPassword();
-    user_record["academic"] = user->getAcademic();
-    user_record["department"] = user->getDepartment();
-    user_record["roll_number"] = user->getRollNumber();
-
-    // Serialize JSON to file
-    if (serializeJson(user_record, file) == 0) {
-      Serial.println("Failed to write JSON to file.");
-    } else {
-      Serial.println("JSON written to file.");
-    }
-    file.close();
-  } else {
-    Serial.println("Failed to open file for writing.");
+  if (!file) {
+    Serial.println("Failed to open file for writing");
+    return;
   }
+
+  // Write user data to the file, separating fields with commas
+  file.print(user->getUserId());
+  file.print(",");
+  file.print(user->getUsername());
+  file.print(",");
+  file.print(user->getPassword());
+  file.print(",");
+  file.print(user->getAcademic());
+  file.print(",");
+  file.print(user->getDepartment());
+  file.print(",");
+  file.println(user->getRollNumber());
+
+  file.close();
+  Serial.println("User data written to CSV file");
+  return;
 }
 
-void CardService::readJsonFromSD(const char* filename) {
-  File file = sd.open(filename);
-  if (file) {
-    // Create a dynamic JSON document
-    DynamicJsonDocument user_record(1024);  // Adjust size as needed
 
-    DeserializationError error = deserializeJson(user_record, file);
-    if (!error) {
-      int id = user_record["id"];
-      String name = user_record["name"].as<String>();
-      String password = user_record["password"].as<String>();
-      int academic = user_record["academic"];
-      String department = user_record["department"].as<String>();
-      String roll_number = user_record["roll_number"].as<String>();
 
-      Serial.print("ID: ");
-      Serial.println(id);
-      Serial.print("Name: ");
-      Serial.println(name);
-      Serial.print("Password: ");
-      Serial.println(password);
-      Serial.print("Academic: ");
-      Serial.println(academic);
-      Serial.print("Department: ");
-      Serial.println(department);
-      Serial.print("Roll Number: ");
-      Serial.println(roll_number);
-
-    } else {
-      Serial.println("Failed to parse JSON.");
-    }
-    file.close();
-  } else {
-    Serial.println("Failed to open file for reading.");
+// read from csv
+User* CardService::readJsonFromCSV(const char* filename, int fingerId) {
+  File file = sd.open(filename, FILE_READ);
+  if (!file) {
+    Serial.println("Failed to open file for reading");
+    return nullptr;;
   }
+
+  Serial.println("Reading user data from CSV file:");
+
+  while (file.available()) {
+    String line = file.readStringUntil('\n');
+    int index = 0;
+    String values[6];  // Adjust size based on number of fields
+
+    // Split line by commas
+    while (line.length() > 0) {
+      int commaIndex = line.indexOf(',');
+      if (commaIndex == -1) {
+        values[index++] = line;
+        break;
+      }
+      values[index++] = line.substring(0, commaIndex);
+      line = line.substring(commaIndex + 1);
+    }
+
+
+    if (values[0].toInt() == fingerId) {
+      User* user = new User(
+        values[0].toInt(),
+        values[1],
+        values[2],
+        values[3].toInt(),
+        values[4],
+        values[5]);
+      // // Display user data
+      // Serial.print(F"User ID: ");
+      // Serial.println(values[0]);
+      // Serial.print("Username: ");
+      // Serial.println(values[1]);
+      // Serial.print("Password: ");
+      // Serial.println(values[2]);
+      // Serial.print("Academic: ");
+      // Serial.println(values[3]);
+      // Serial.print("Department: ");
+      // Serial.println(values[4]);
+      // Serial.print("Roll Number: ");
+      // Serial.println(values[5]);
+      // Serial.println();
+      file.close();
+      return user;
+    }
+  }
+  file.close();
+  return nullptr;
 }
 
-void CardService::deleteFileFromSD(const char* filename) {
+
+
+
+// delete csv
+void CardService::deleteFileFromCSV(const char* filename) {
   if (sd.exists(filename)) {
     if (sd.remove(filename)) {
-      Serial.println("File deleted.");
+      Serial.println("File deleted successfully.");
     } else {
-      Serial.println("Failed to delete file.");
+      Serial.println("Failed to delete the file.");
     }
   } else {
-    Serial.println("File does not exist.");
+    Serial.println("File does not exit.");
   }
 }

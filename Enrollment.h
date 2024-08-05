@@ -11,8 +11,7 @@ private:
   int convertedImageT2;
   int nextId; // Initialize nextId to 1 for the first fingerprint
 
-  Enrollment(); // Private constructor for Singleton pattern
-
+  // Private methods
   int getFingerFirstTime();
   int convertImageT1();
   int getFingerSecondTime();
@@ -21,10 +20,11 @@ private:
   int storeModel();
 
 public:
-  // Get instance method for Singleton pattern
-  static Enrollment& getInstance();
+  // Constructor
+  Enrollment(); 
 
-  void getFingerprint();
+  // Public methods
+  int getFingerprint();
 };
 
 #endif // ENROLLMENT_H

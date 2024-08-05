@@ -1,3 +1,4 @@
+#include <ArduinoJson.h>
 #ifndef USER_H
 #define USER_H
 
@@ -13,16 +14,11 @@ private:
   String rollNumber;
 
 public:
+  User();
 
   User(int userId, String username, String password, int academic, String department, String rollNumber);
 
-  static int userCount;        
-  static User *users[5];
-  static void addUser(User *user);
-  static void findAndPrintUser(int id);
-  static void displayAllUsers();
-
-// Getters and setters
+  // Getters and setters
   int getUserId() const;
   void setUserId(int userId);
 
