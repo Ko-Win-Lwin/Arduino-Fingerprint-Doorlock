@@ -38,7 +38,7 @@ void CardService::writeJsonToCSV(const char* filename, User* user) {
   file.println(user->getRollNumber());
 
   file.close();
-  Serial.println("User data written to CSV file");
+  Serial.println(F("User data written to CSV file"));
   return;
 }
 

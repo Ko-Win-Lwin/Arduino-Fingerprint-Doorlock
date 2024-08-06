@@ -33,10 +33,10 @@ void setup() {
   CardService::begin(10);  // Use the correct chip select pin
 
 
-  // if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-  //   Serial.println(F("SSD1306 allocation failed"));
-  //   for (;;);  // Don't proceed, loop forever
-  // }
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;);  // Don't proceed, loop forever
+  }
 
   finger.begin(57600);
 
@@ -91,10 +91,11 @@ void loop() {
     Serial.println(F("Attendance."));
     int id = attendance.getFingerprintIDez();
     if (id > 0) {
-      Serial.print("found id "); Serial.println(id);
-      // TODO 
-      // get user with this id from database
-      // open lock
+      Serial.print("found id ");
+      Serial.println(id);
+      User* user = CardService::readJsonFromCSV("user_data.csv", id);
+      processEnrollmentData(user->getUserId(), user->getUsername(), user->getPassword(), user->getAcademic(), user->getDepartment(), user->getRollNumber());
+      delete user;
     }
     // Process the user input
   } else if (userInput == 2) {
@@ -108,6 +109,10 @@ void loop() {
       String department = readStringInput(F("Enter Department:"));
       String rollNumber = readStringInput(F("Enter Roll Number:"));
       processEnrollmentData(id, username, password, academic, department, rollNumber);
+      User* user = new User(userId, username, password, academic, department, rollNumber);
+      CardService::writeJsonToCSV("user_data.csv", user);
+
+      delete user;
       // TODO
       // save to database
     } else {
