@@ -75,8 +75,8 @@ void loop() {
   if (userInput == 1) {
     display.println(F("Attendance."));
     int id = attendance.getFingerprintIDez();
-    // Serial.print("user id ");
-    // Serial.println(id);
+    Serial.print("user id ");
+    Serial.println(id);
     if (id > 0) {
       Serial.print("found id ");
       Serial.println(id);
@@ -100,7 +100,6 @@ void loop() {
       processEnrollmentData(id, username, password, academic, department, rollNumber);
       User* user = new User(userId, username, password, academic, department, rollNumber);
       CardService::writeJsonToCSV("user_data.csv", user);
-
       delete user;
       id = 0;
     } else {

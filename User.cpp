@@ -1,6 +1,5 @@
 #include "User.h"
 
-
 // Parameterized constructor
 User::User(int userId,
            String username,
