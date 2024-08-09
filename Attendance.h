@@ -1,7 +1,6 @@
 #ifndef ATTENDANCE_H
 #define ATTENDANCE_H
 
-#include "HardwareSerial.h"
 #include "Adafruit_Fingerprint.h"
 
 // Ensure that the Adafruit_Fingerprint instance is defined elsewhere

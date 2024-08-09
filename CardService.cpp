@@ -1,6 +1,3 @@
-#include "common/ArduinoFiles.h"
-#include "common/FsApiConstants.h"
-#include "HardwareSerial.h"
 #include <SdFat.h>
 #include "CardService.h"
 #include "user.h"
@@ -79,20 +76,6 @@ User* CardService::readJsonFromCSV(const char* filename, int fingerId) {
         values[3].toInt(),
         values[4],
         values[5]);
-      // // Display user data
-      // Serial.print(F"User ID: ");
-      // Serial.println(values[0]);
-      // Serial.print("Username: ");
-      // Serial.println(values[1]);
-      // Serial.print("Password: ");
-      // Serial.println(values[2]);
-      // Serial.print("Academic: ");
-      // Serial.println(values[3]);
-      // Serial.print("Department: ");
-      // Serial.println(values[4]);
-      // Serial.print("Roll Number: ");
-      // Serial.println(values[5]);
-      // Serial.println();
       file.close();
       return user;
     }

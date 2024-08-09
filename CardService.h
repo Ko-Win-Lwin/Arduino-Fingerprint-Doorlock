@@ -2,7 +2,6 @@
 #define CARDSERVICE_H
 
 #include <SdFat.h>
-#include <ArduinoJson.h>
 #include "User.h"
 
 class CardService {
