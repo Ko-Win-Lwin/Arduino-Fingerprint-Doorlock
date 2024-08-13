@@ -71,6 +71,10 @@ void loop() {
       Serial.print("found id ");
       Serial.println(id);
       User* user = CardService::readJsonFromCSV("user_data.csv", id);
+      //
+      // TODO:
+      // open door lock && open door
+      //
       display.clear();
       processEnrollmentData(user->getUserId(), user->getUsername(), user->getPassword(), user->getAcademic(), user->getDepartment(), user->getRollNumber());
       delay(3000);
@@ -95,6 +99,8 @@ void loop() {
     } else {
       display.println(F("Enrollment failed."));
     }
+  } else if (userInput == 3) {
+    display.println(F("Hello Guest. Ask a temporary password form stuff."));
   } else {
     display.print(F("Invalid user input. You entered: "));
     display.println(userInput);
