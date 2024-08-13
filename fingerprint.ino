@@ -5,14 +5,9 @@
 #include "User.h"
 #include "CardService.h"
 #include <Wire.h>
-#include <SSD1306Ascii.h>
-#include <SSD1306AsciiWire.h>
+#include "Display.h"
 
-#define SCREEN_WIDTH 128     // OLED display width, in pixels
-#define SCREEN_HEIGHT 64     // OLED display height, in pixels
-#define SCREEN_ADDRESS 0x3C  // OLED display address
 
-SSD1306AsciiWire display;
 
 #if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
 SoftwareSerial mySerial(2, 3);
@@ -28,12 +23,7 @@ void setup() {
   CardService::begin(10);  // Use the correct chip select pin
 
   Wire.begin();
-  display.begin(&Adafruit128x64, SCREEN_ADDRESS);
-  display.setFont(Adafruit5x7);
-
-  // Clear the screen
-  display.clear();
-  display.println(F("SSD1306Ascii Initialized"));
+  initDisplay();
 
   finger.begin(57600);
 
@@ -53,10 +43,10 @@ void loop() {
   Enrollment enrollment;
   Attendance attendance;
 
-  display_menu();
+  displayMenu();
 
   // Wait for user input and read it
-  Serial.println(F("Waiting for input..."));
+  display.println(F("Waiting for input..."));
   while (Serial.available() == 0) {
     delay(10);  // Small delay to avoid CPU overload
   }
@@ -111,16 +101,7 @@ void loop() {
   }
 }
 
-void display_menu() {
-  display.clear();
-  display.println(F("Main Menu"));
-  display.println(F("1. Attendance."));
-  display.println(F("2. Enrollment."));
-  display.println();
-  Serial.println(F("Main Menu"));
-  Serial.println(F("1. Attendance."));
-  Serial.println(F("2. Enrollment."));
-}
+
 
 int readIntegerInput(const String& prompt) {
   display.println(prompt);
@@ -154,19 +135,4 @@ String readStringInput(const String& prompt) {
   }
 
   return input;
-}
-
-void processEnrollmentData(int id, const String& username, const String& password, int academic, const String& department, const String& rollNumber) {
-  display.print(F("ID: "));
-  display.println(id);
-  display.print(F("Username: "));
-  display.println(username);
-  display.print(F("Password: "));
-  display.println(password);
-  display.print(F("Academic Year: "));
-  display.println(academic);
-  display.print(F("Department: "));
-  display.println(department);
-  display.print(F("Roll Number: "));
-  display.println(rollNumber);
 }

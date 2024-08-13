@@ -1,25 +1,22 @@
-#ifndef ATTENDANCE_H
-#define ATTENDANCE_H
+#include "Attendance.h"
 
-#include "Adafruit_Fingerprint.h"
-
-// Ensure that the Adafruit_Fingerprint instance is defined elsewhere
+// Initialize the Adafruit_Fingerprint instance from elsewhere
 extern Adafruit_Fingerprint finger;
 
-class Attendance {
-private:
-  int p = -1;  // Initialize p to -1
-  int convertedImageT1;
+// Constructor
+Attendance::Attendance() {}
 
-public:
-  // Constructor
-  Attendance();
+// Method to get fingerprint ID
+int Attendance::getFingerprintIDez() {
+  uint8_t p = finger.getImage();
+  if (p != FINGERPRINT_OK) return -1;
 
-  // Method to get fingerprint ID
-  int getFingerprintIDez();
+  p = finger.image2Tz();
+  if (p != FINGERPRINT_OK) return -1;
 
-  // Copy constructor and assignment operator are default (public)
-  // No need to delete them as we are not enforcing Singleton pattern
-};
-
-#endif // ATTENDANCE_H
+  p = finger.fingerFastSearch();
+  if (p != FINGERPRINT_OK) {
+    return -1;
+  }
+  return static_cast<int>(finger.fingerID);
+}
