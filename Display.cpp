@@ -18,14 +18,19 @@ void displayMenu() {
   display.println(F("Main Menu"));
   display.println(F("1. Attendance."));
   display.println(F("2. Enrollment."));
+  display.println(F("3. Guest user."));
+  display.println(F("4. Show Attendance."));
   display.println();
   Serial.println(F("Main Menu"));
   Serial.println(F("1. Attendance."));
   Serial.println(F("2. Enrollment."));
+  Serial.println(F("3. Guest user."));
+  Serial.println(F("4. Show Attendance."));
 }
 
 
 void processEnrollmentData(int id, const String& username, const String& password, int academic, const String& department, const String& rollNumber) {
+  display.clear();
   display.print(F("ID: "));
   display.println(id);
   display.print(F("Username: "));

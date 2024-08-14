@@ -7,9 +7,11 @@
 class CardService {
 public:
     static void begin(int chipSelectPin);
-    static void writeJsonToCSV(const char* filename, User *user);
-    static User* readJsonFromCSV(const char* filename, int fingerId);
+    static void writeFileToCSV(const char* filename, User *user);
+    static User* readFileFromCSV(const char* filename, int fingerId);
     static void deleteFileFromCSV(const char* filename);
+    static void saveAttendance(const char* filename, User *user);
+    static User** showAttendance(int& userCount, char* filename);
 
 private:
     static SdFat sd;

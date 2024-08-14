@@ -1,6 +1,14 @@
+#include "common/ArduinoFiles.h"
 #include <SdFat.h>
 #include "CardService.h"
 #include "User.h"
+#include "Array.h"
+#include "Display.h"
+
+const int ELEMENT_COUNT_MAX = 10;  // Adjust size as needed
+
+// Create an Array instance for User pointers
+Array<User*, ELEMENT_COUNT_MAX> users;
 
 SdFat CardService::sd;
 
@@ -9,12 +17,130 @@ void CardService::begin(int chipSelectPin) {
     Serial.println("sd card initialization failed!");
   } else {
     Serial.println("sd card initialized.");
+    display.println("Card initialized");
   }
 }
 
+void CardService::saveAttendance(const char* filename, User* user) {
+  // Check if the file exists before trying to open it
+  if (!sd.exists(filename)) {
+    Serial.print("File does not exist: ");
+    Serial.println(filename);
+    return nullptr;
+  }
+
+  File file = sd.open(filename, FILE_READ);
+  if (!file) {
+    Serial.println("Failed to open file for reading");
+    return;
+  }
+
+  // Check if the user already exists
+  int userId = user->getUserId();
+  bool userExists = false;
+
+  while (file.available()) {
+    String line = file.readStringUntil('\n');
+    if (line.startsWith(userId + ",")) {
+      userExists = true;
+      break;
+    }
+  }
+
+  file.close();
+
+  if (userExists) {
+    Serial.println("Already done. ma nauk nak kwar :) ");
+    return;
+  }
+
+  // Open the file for writing if the user does not exist
+  file = sd.open(filename, FILE_WRITE);
+  if (!file) {
+    Serial.println("Failed to open file for writing");
+    return;
+  }
+
+  // Write user data to the file, separating fields with commas
+  file.print(user->getUserId());
+  file.print(",");
+  file.print(user->getUsername());
+  file.print(",");
+  file.print(user->getPassword());
+  file.print(",");
+  file.print(user->getAcademic());
+  file.print(",");
+  file.print(user->getDepartment());
+  file.print(",");
+  file.println(user->getRollNumber());
+
+  file.close();
+  Serial.println(F("Attendance save."));
+}
+
+
+
+User** CardService::showAttendance(int& userCount, char* filename) {
+  // Reset the Array instance
+  users.clear();
+  // Check if the file exists before trying to open it
+  if (!sd.exists(filename)) {
+    Serial.print("File does not exist: ");
+    Serial.println(filename);
+    userCount = 0;
+    return nullptr;
+  }
+
+  File file = sd.open(filename, FILE_READ);
+  if (!file) {
+    Serial.println("Failed to open file for reading");
+    userCount = 0;
+    return nullptr;
+  }
+
+  while (file.available()) {
+    String line = file.readStringUntil('\n');
+    int index = 0;
+    String fields[6];
+    String field;
+
+    for (char c : line) {
+      if (c == ',') {
+        fields[index++] = field;
+        field = "";
+      } else {
+        field += c;
+      }
+    }
+    fields[index] = field;
+
+    if (index == 5) {                    // Check if exactly 6 fields were parsed
+      int userId = fields[0].toInt();    // Convert to int
+      int academic = fields[3].toInt();  // Convert to int
+
+      // Check if Array is full
+      if (users.size() >= ELEMENT_COUNT_MAX) {
+        Serial.println("Array limit reached.");
+        break;
+      }
+
+      users.push_back(new User(userId, fields[1], fields[2], academic, fields[4], fields[5]));
+    }
+  }
+  file.close();
+
+  // Convert Array to User** and set userCount
+  User** finalUsers = new User*[users.size()];
+  for (int i = 0; i < users.size(); ++i) {
+    finalUsers[i] = users[i];
+  }
+
+  userCount = users.size();
+  return finalUsers;
+}
 
 // write to csv
-void CardService::writeJsonToCSV(const char* filename, User* user) {
+void CardService::writeFileToCSV(const char* filename, User* user) {
   File file = sd.open(filename, FILE_WRITE);
   if (!file) {
     Serial.println("Failed to open file for writing");
@@ -42,11 +168,11 @@ void CardService::writeJsonToCSV(const char* filename, User* user) {
 
 
 // read from csv
-User* CardService::readJsonFromCSV(const char* filename, int fingerId) {
+User* CardService::readFileFromCSV(const char* filename, int fingerId) {
   File file = sd.open(filename, FILE_READ);
   if (!file) {
     Serial.println("Failed to open file for reading");
-    return nullptr;;
+    return;
   }
 
   Serial.println("Reading user data from CSV file:");
