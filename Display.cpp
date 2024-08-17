@@ -43,4 +43,5 @@ void processEnrollmentData(int id, const String& username, const String& passwor
   display.println(department);
   display.print(F("Roll Number: "));
   display.println(rollNumber);
+  delay(3000);
 }

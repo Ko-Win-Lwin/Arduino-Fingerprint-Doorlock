@@ -1,3 +1,5 @@
+#include "Arduino.h"
+#include "HardwareSerial.h"
 #include "common/ArduinoFiles.h"
 #include <SdFat.h>
 #include "CardService.h"
@@ -26,7 +28,7 @@ void CardService::saveAttendance(const char* filename, User* user) {
   if (!sd.exists(filename)) {
     Serial.print("File does not exist: ");
     Serial.println(filename);
-    return nullptr;
+    return;
   }
 
   File file = sd.open(filename, FILE_READ);
@@ -36,12 +38,14 @@ void CardService::saveAttendance(const char* filename, User* user) {
   }
 
   // Check if the user already exists
-  int userId = user->getUserId();
+  String userIdStr = String(user->getUserId()); // Convert user ID to String
   bool userExists = false;
 
   while (file.available()) {
     String line = file.readStringUntil('\n');
-    if (line.startsWith(userId + ",")) {
+    // Check if the line starts with the user ID followed by a comma
+    if (line.startsWith(userIdStr + ",")) {
+      Serial.print("user is ");Serial.println(userIdStr);
       userExists = true;
       break;
     }
@@ -50,11 +54,14 @@ void CardService::saveAttendance(const char* filename, User* user) {
   file.close();
 
   if (userExists) {
-    Serial.println("Already done. ma nauk nak kwar :) ");
+    display.clear();
+    display.println("Already done.");
+    display.println("ma nauk nak kwar :) ");
+    delay(3000);
     return;
   }
 
-  // Open the file for writing if the user does not exist
+  // Open the file for writing, to append data if user does not exist
   file = sd.open(filename, FILE_WRITE);
   if (!file) {
     Serial.println("Failed to open file for writing");
@@ -75,12 +82,13 @@ void CardService::saveAttendance(const char* filename, User* user) {
   file.println(user->getRollNumber());
 
   file.close();
-  Serial.println(F("Attendance save."));
+  Serial.println(F("Attendance saved."));
 }
 
 
 
 User** CardService::showAttendance(int& userCount, char* filename) {
+  Serial.println(filename);
   // Reset the Array instance
   users.clear();
   // Check if the file exists before trying to open it

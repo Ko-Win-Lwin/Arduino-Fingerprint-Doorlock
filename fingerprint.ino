@@ -7,6 +7,8 @@
 #include <Wire.h>
 #include "Display.h"
 
+const int relayPin = 8;  // Relay control pin
+
 #if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
 SoftwareSerial mySerial(2, 3);
 #else
@@ -23,8 +25,6 @@ void setup() {
   // Initialize the SD card
   CardService::begin(chipSelect);
 
-  Serial.println("SD card initialized.");
-
   Wire.begin();
   initDisplay();
 
@@ -39,6 +39,8 @@ void setup() {
     display.println(F("Fingerprint sensor not found :("));
     while (1) { delay(1); }
   }
+
+  pinMode(relayPin, OUTPUT);
 }
 
 int userInput = 0;
@@ -80,7 +82,10 @@ void loop() {
           if (user != nullptr) {
             processEnrollmentData(user->getUserId(), user->getUsername(), user->getPassword(), user->getAcademic(), user->getDepartment(), user->getRollNumber());
             CardService::saveAttendance(attendance_record, user);
+            delay(1000);
+            digitalWrite(relayPin, HIGH);
             delay(3000);
+            digitalWrite(relayPin, LOW);
           } else {
             Serial.println("User returned null from read CSV");
           }
