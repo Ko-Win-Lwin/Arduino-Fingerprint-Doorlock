@@ -65,46 +65,131 @@ void setup() {
   pinMode(relayPin, OUTPUT);
   myServo.attach(8);
   myServo.write(55);
+  displayMenu();
 }
 
-// int userInput = 0;
+int userInput = 0;
 char* database = "user_data.csv";
 char* attendance_record = "daily_record.csv";
 
 
 void loop() {
-  Enrollment enrollment;
-  Attendance attendance;
 
   char customKey = customKeypad.getKey();
 
+  if (customKey) {
+    userInput = customKey - '0';  // Update userInput based on key pressed
+    handleUserInput(userInput);
+    displayMenu();
+  }
+}
 
 
-// displayMenu();
+void handleUserInput(int userInput) {
+  Enrollment enrollment;
+  Attendance attendance;
+  switch (userInput) {
+    case 1:
+      {
+        display.println(F("Attendance."));
+        int attendanceId = attendance.getFingerprintIDez();
+        Serial.print("User ID: ");
+        Serial.println(attendanceId);
+        if (attendanceId > 0) {
+          Serial.print("Found ID: ");
+          Serial.println(attendanceId);
+          User* user = CardService::readFileFromCSV(database, attendanceId);
+          if (user != nullptr) {
+            processEnrollmentData(user->getUserId(), user->getUsername(), user->getPassword(), user->getAcademic(), user->getDepartment(), user->getRollNumber());
+            CardService::saveAttendance(attendance_record, user);
+            open_door();
+          } else {
+            Serial.println("User returned null from read CSV");
+          }
+          delete user;
+        }
+        break;
+      }
 
-// char customKey = customKeypad.getKey();
+    case 2:
+      {
+        display.println(F("Enrollment."));
+        int id = attendance.getFingerprintIDez();
+        Serial.print("enroll id ");
+        Serial.println(id);
+
+        if (id == -1) {
+          display.println(F("Try again."));
+          delay(2000);
+          return;
+        }
+
+        if (id > 0) {
+          display.println(F("User already exist."));
+          delay(2000);
+          return;
+        }
+
+        int enrollmentId = enrollment.getFingerprint();
+        if (enrollmentId > 0) {
+          int userId = enrollmentId;
+          String username = readStringInput(F("Enter Username:"));
+          String password = readStringInput(F("Enter Password:"));
+          int academic = readIntegerInput(F("Enter Academic Year:"));
+          String department = readStringInput(F("Enter Department:"));
+          String rollNumber = readStringInput(F("Enter Roll Number:"));
+          processEnrollmentData(enrollmentId, username, password, academic, department, rollNumber);
+          User* user = new User(userId, username, password, academic, department, rollNumber);
+          CardService::writeFileToCSV(database, user);
+          delete user;
+        } else {
+          display.println(F("Enrollment failed."));
+        }
+        break;
+      }
+
+    case 3:
+      {
+        display.println(F("Hello Guest. Ask a temporary password from staff."));
+        String key = readStringFromKeypad(F("Enter key"));
+        if (key == GUEST_KEY) {
+          open_door();
+        }
+        break;
+      }
+
+    case 4:
+      {
+        display.clear();
+        display.println("Showing today's record.");
+        delay(1000);
+        int userCount = 0;
+        User** users = CardService::showAttendance(userCount, attendance_record);
+        for (int i = 0; i < userCount; ++i) {
+          display.print((users[i]->getUserId()));
+          display.print(".");
+          display.println(users[i]->getUsername());
+          delay(1000);
+        }
+        for (int i = 0; i < userCount; ++i) {
+          delete users[i];
+        }
+        delete[] users;
+        delay(3000);
+        break;
+      }
+
+    default:
+      // display.println(F("Invalid user input. You entered: "));
+      display.println(userInput);
+      delay(2000);
+      break;
+  }
+}
 
 
-// // Wait for user input and read it
-// display.println(F("Waiting for input..."));
-// while (Serial.available() == 0) {
-//   // delay(10);  // Small delay to avoid CPU overload
-// }
-
-
-// // String input = Serial.readStringUntil('\n');
-// // input.trim();
-// // userInput = input.toInt();
-
-// // Clear any remaining data in the buffer
-// while (Serial.available() > 0) {
-//   Serial.read();  // Read and discard each byte
-// }
-// delay(100);  // Short delay to avoid CPU overload
-
-
-// switch (customKey) {
-//   case '1':
+// switch (userInput) {
+//   case 1:
 //     {
 //       display.println(F("Attendance."));
 //       int attendanceId = attendance.getFingerprintIDez();
@@ -126,7 +211,7 @@ void loop() {
 //       break;
 //     }
 
-//   case '2':
+//   case 2:
 //     {
 //       display.println(F("Enrollment."));
 //       int id = attendance.getFingerprintIDez();
@@ -163,7 +248,7 @@ void loop() {
 //       break;
 //     }
 
-//   case '3':
+//   case 3:
 //     {
 //       display.println(F("Hello Guest. Ask a temporary password from staff."));
 //       String key = readStringInput(F("Enter guest key "));
@@ -173,7 +258,7 @@ void loop() {
 //       break;
 //     }
 
-//   case '4':
+//   case 4:
 //     {
 //       display.clear();
 //       display.println("Showing today's record.");
@@ -202,6 +287,7 @@ void loop() {
 // }
 
 
+
 int readIntegerInput(const String& prompt) {
   display.println(prompt);
   while (Serial.available() == 0) {
@@ -227,6 +313,36 @@ String readStringInput(const String& prompt) {
   }
   return input;
 }
+
+String readStringFromKeypad(const String& prompt) {
+  String input = "";
+  char key = '\0';
+
+  display.println(prompt);  // Display the prompt
+
+  while (true) {
+    key = customKeypad.getKey();  // Read the keypress
+
+    if (key) {           // If a key is pressed
+      if (key == '#') {  // End input when `#` is pressed
+        break;
+      } else if (key == '*') {  // Handle backspace when `*` is pressed
+        if (input.length() > 0) {
+          input.remove(input.length() - 1);  // Remove last character
+          display.print("\b \b");            // Remove last character from display
+        }
+      } else {
+        input += key;        // Append the character to the input
+        display.print(key);  // Display the character
+      }
+      delay(100);  // Small delay to debounce the keypad
+    }
+  }
+
+  display.println();  // Newline after input
+  return input;
+}
+
 
 void open_door() {
   delay(1000);
