@@ -188,105 +188,6 @@ void handleUserInput(int userInput) {
 }
 
 
-// switch (userInput) {
-//   case 1:
-//     {
-//       display.println(F("Attendance."));
-//       int attendanceId = attendance.getFingerprintIDez();
-//       Serial.print("User ID: ");
-//       Serial.println(attendanceId);
-//       if (attendanceId > 0) {
-//         Serial.print("Found ID: ");
-//         Serial.println(attendanceId);
-//         User* user = CardService::readFileFromCSV(database, attendanceId);
-//         if (user != nullptr) {
-//           processEnrollmentData(user->getUserId(), user->getUsername(), user->getPassword(), user->getAcademic(), user->getDepartment(), user->getRollNumber());
-//           CardService::saveAttendance(attendance_record, user);
-//           open_door();
-//         } else {
-//           Serial.println("User returned null from read CSV");
-//         }
-//         delete user;
-//       }
-//       break;
-//     }
-
-//   case 2:
-//     {
-//       display.println(F("Enrollment."));
-//       int id = attendance.getFingerprintIDez();
-//       Serial.print("enroll id ");
-//       Serial.println(id);
-
-//       if (id == -1) {
-//         display.println(F("Try again."));
-//         delay(2000);
-//         return;
-//       }
-
-//       if (id > 0) {
-//         display.println(F("User already exist."));
-//         delay(2000);
-//         return;
-//       }
-
-//       int enrollmentId = enrollment.getFingerprint();
-//       if (enrollmentId > 0) {
-//         int userId = enrollmentId;
-//         String username = readStringInput(F("Enter Username:"));
-//         String password = readStringInput(F("Enter Password:"));
-//         int academic = readIntegerInput(F("Enter Academic Year:"));
-//         String department = readStringInput(F("Enter Department:"));
-//         String rollNumber = readStringInput(F("Enter Roll Number:"));
-//         processEnrollmentData(enrollmentId, username, password, academic, department, rollNumber);
-//         User* user = new User(userId, username, password, academic, department, rollNumber);
-//         CardService::writeFileToCSV(database, user);
-//         delete user;
-//       } else {
-//         display.println(F("Enrollment failed."));
-//       }
-//       break;
-//     }
-
-//   case 3:
-//     {
-//       display.println(F("Hello Guest. Ask a temporary password from staff."));
-//       String key = readStringInput(F("Enter guest key "));
-//       if (key == GUEST_KEY) {
-//         open_door();
-//       }
-//       break;
-//     }
-
-//   case 4:
-//     {
-//       display.clear();
-//       display.println("Showing today's record.");
-//       delay(1000);
-//       int userCount = 0;
-//       User** users = CardService::showAttendance(userCount, attendance_record);
-//       for (int i = 0; i < userCount; ++i) {
-//         display.print((users[i]->getUserId()));
-//         display.print(".");
-//         display.println(users[i]->getUsername());
-//         delay(1000);
-//       }
-//       for (int i = 0; i < userCount; ++i) {
-//         delete users[i];
-//       }
-//       delete[] users;
-//       delay(3000);
-//       break;
-//     }
-
-//   default:
-//     // display.println(F("Invalid user input. You entered: "));
-//     display.println(customKey);
-//     delay(2000);
-//     break;
-// }
-
-
 
 int readIntegerInput(const String& prompt) {
   display.println(prompt);
@@ -300,6 +201,8 @@ int readIntegerInput(const String& prompt) {
   }
   return value;
 }
+
+
 
 String readStringInput(const String& prompt) {
   display.println(prompt);
@@ -348,8 +251,6 @@ void open_door() {
   delay(1000);
   digitalWrite(relayPin, HIGH);
   delay(2000);
-  // TODO
-  // turn servo
   myServo.write(270);
   Serial.println(F("Servo is opening "));
   delay(4000);
