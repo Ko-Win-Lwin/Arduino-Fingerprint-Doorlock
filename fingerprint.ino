@@ -148,69 +148,6 @@ void loop() {
       display.println(userInput);
       break;
   }
-
-
-
-  // if (userInput == 1) {
-  //   display.println(F("Attendance."));
-  //   int id = attendance.getFingerprintIDez();
-  //   Serial.print("User ID: ");
-  //   Serial.println(id);
-  //   if (id > 0) {
-  //     Serial.print("Found ID: ");
-  //     Serial.println(id);
-  //     User* user = CardService::readFileFromCSV(database, id);
-  //     if (user != nullptr) {
-  //       processEnrollmentData(user->getUserId(), user->getUsername(), user->getPassword(), user->getAcademic(), user->getDepartment(), user->getRollNumber());
-  //       CardService::saveAttendance(attendance_record, user);
-  //       delay(3000);
-  //     } else {
-  //       Serial.println("User return null from read csv");
-  //     }
-
-  //     delete user;
-  //   }
-  // } else if (userInput == 2) {
-  //   display.println(F("Enrollment."));
-  //   int id = enrollment.getFingerprint();
-  //   if (id > 0) {
-  //     int userId = id;
-  //     String username = readStringInput(F("Enter Username:"));
-  //     String password = readStringInput(F("Enter Password:"));
-  //     int academic = readIntegerInput(F("Enter Academic Year:"));
-  //     String department = readStringInput(F("Enter Department:"));
-  //     String rollNumber = readStringInput(F("Enter Roll Number:"));
-  //     processEnrollmentData(id, username, password, academic, department, rollNumber);
-  //     User* user = new User(userId, username, password, academic, department, rollNumber);
-  //     CardService::writeFileToCSV(database, user);
-  //     delete user;
-  //   } else {
-  //     display.println(F("Enrollment failed."));
-  //   }
-  // } else if (userInput == 3) {
-  //   display.println(F("Hello Guest. Ask a temporary password from staff."));
-  //   delay(2000);
-  // } else if (userInput == 4) {
-  //   display.clear();
-  //   display.println("Showing today's record.");
-  //   delay(1000);
-  //   int userCount = 0;
-  //   User** users = CardService::showAttendance(userCount, attendance_record);
-  //   for (int i = 0; i < userCount; ++i) {
-  //     display.print((users[i]->getUserId()));
-  //     display.print(".");
-  //     display.println(users[i]->getUsername());
-  //     delay(1000);
-  //   }
-  //   for (int i = 0; i < userCount; ++i) {
-  //     delete users[i];
-  //   }
-  //   delete[] users;
-  //   delay(3000);
-  // } else {
-  //   display.print(F("Invalid user input. You entered: "));
-  //   display.println(userInput);
-  // }
 }
 
 int readIntegerInput(const String& prompt) {
