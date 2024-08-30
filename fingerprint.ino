@@ -91,7 +91,10 @@ void handleUserInput(int userInput) {
   switch (userInput) {
     case 1:
       {
+        display.clear();
         display.println(F("Attendance."));
+        display.println(F("Plz Place Your Finger."));
+        delay(2000);
         int attendanceId = attendance.getFingerprintIDez();
         Serial.print("User ID: ");
         Serial.println(attendanceId);
@@ -113,16 +116,19 @@ void handleUserInput(int userInput) {
 
     case 2:
       {
+        display.clear();
         display.println(F("Enrollment."));
+        display.println(F("Plz Place Your Finger."));
         int id = attendance.getFingerprintIDez();
+
         Serial.print("enroll id ");
         Serial.println(id);
 
-        if (id == -1) {
-          display.println(F("Try again."));
-          delay(2000);
-          return;
-        }
+        // if (id == -1) {
+        //   display.println(F("Try again."));
+        //   delay(2000);
+        //   return;
+        // }
 
         if (id > 0) {
           display.println(F("User already exist."));
@@ -150,7 +156,7 @@ void handleUserInput(int userInput) {
 
     case 3:
       {
-        display.println(F("Hello Guest. Ask a temporary password from staff."));
+        display.println(F("Enter Guest Key."));
         String key = readStringFromKeypad(F("Enter key"));
         if (key == GUEST_KEY) {
           open_door();
@@ -250,12 +256,12 @@ String readStringFromKeypad(const String& prompt) {
 void open_door() {
   delay(1000);
   digitalWrite(relayPin, HIGH);
-  delay(2000);
+  delay(1000);
   myServo.write(270);
-  Serial.println(F("Servo is opening "));
+  Serial.println(F("Door is opening "));
   delay(4000);
   myServo.write(55);
-  delay(3000);
+  delay(2000);
   digitalWrite(relayPin, LOW);
   delay(1000);
 }
